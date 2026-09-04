@@ -33814,7 +33814,7 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 
     var FONT = "標楷體";
     function run(text, extra) {
-      return new TextRun(Object.assign({ text: text, font: FONT, color: "000000" }, extra || {}));
+      return new TextRun(Object.assign({ text: text, font: FONT, color: "000000", size: 24, bold: true }, extra || {}));
     }
     function cellPara(text) {
       return new Paragraph({ children: [run(text)], spacing: { line: 400, lineRule: "exact" } });
@@ -33822,7 +33822,8 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 
     var headerChildren = [
       new Paragraph({
-        children: [run("工程施工照片保存卡", { size: 32, underline: { type: UnderlineType.SINGLE } })],
+        alignment: AlignmentType.CENTER,
+        children: [run("工程施工照片保存卡", { size: 40, bold: true, underline: { type: UnderlineType.SINGLE } })],
         spacing: { after: 160 },
       }),
       new Paragraph({
