@@ -33814,10 +33814,12 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 
     var FONT = "標楷體";
     function run(text, extra) {
-      return new TextRun(Object.assign({ text: text, font: FONT, color: "000000", size: 24, bold: true }, extra || {}));
+      return new TextRun(Object.assign({ text: text, font: FONT, color: "000000", size: 24 }, extra || {}));
     }
-    function cellPara(text) {
-      return new Paragraph({ children: [run(text)], spacing: { line: 400, lineRule: "exact" } });
+    function labelRun(text, extra) { return run(text, Object.assign({ bold: true }, extra || {})); }
+    function valueRun(text, extra) { return run(text, Object.assign({ bold: false }, extra || {})); }
+    function cellPara(children) {
+      return new Paragraph({ children: children, spacing: { line: 400, lineRule: "exact" } });
     }
 
     var headerChildren = [
@@ -33828,12 +33830,12 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
       }),
       new Paragraph({
         alignment: AlignmentType.JUSTIFIED,
-        children: [run("工程名稱：" + els.project.value.trim())],
+        children: [labelRun("工程名稱："), valueRun(els.project.value.trim())],
         spacing: { after: 60 },
       }),
       new Paragraph({
         alignment: AlignmentType.JUSTIFIED,
-        children: [run("編號：" + els.code.value.trim())],
+        children: [labelRun("編號："), valueRun(els.code.value.trim())],
         spacing: { after: 200 },
       }),
     ];
@@ -33849,16 +33851,12 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
       var descLines = node.querySelector(".f-desc").value.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
 
       var cellParas = [
-        cellPara("日期：" + date),
-        cellPara("項目：" + item),
-        cellPara("位置：" + location),
+        cellPara([labelRun("日期："), valueRun(date)]),
+        cellPara([labelRun("項目："), valueRun(item)]),
+        cellPara([labelRun("位置："), valueRun(location)]),
+        cellPara([labelRun("說明：")]),
       ];
-      if (descLines.length === 0) {
-        cellParas.push(cellPara("說明："));
-      } else {
-        cellParas.push(cellPara("說明：" + descLines[0]));
-        descLines.slice(1).forEach(function (line) { cellParas.push(cellPara(line)); });
-      }
+      descLines.forEach(function (line) { cellParas.push(cellPara([valueRun(line)])); });
 
       var imgChildren = [];
       if (photo) {
