@@ -33804,7 +33804,13 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
     var Document = docx.Document, Paragraph = docx.Paragraph, TextRun = docx.TextRun, ImageRun = docx.ImageRun,
         Table = docx.Table, TableRow = docx.TableRow, TableCell = docx.TableCell,
         WidthType = docx.WidthType, HeightRule = docx.HeightRule, BorderStyle = docx.BorderStyle,
-        AlignmentType = docx.AlignmentType, UnderlineType = docx.UnderlineType, VerticalAlignTable = docx.VerticalAlignTable;
+        AlignmentType = docx.AlignmentType, UnderlineType = docx.UnderlineType, VerticalAlignTable = docx.VerticalAlignTable,
+        TableLayoutType = docx.TableLayoutType;
+
+    var PAGE_W = 11906, MARGIN_L = 1134, MARGIN_R = 1134;
+    var CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R; // 9638 twips
+    var COL0_W = Math.round(CONTENT_W * 0.32); // text column
+    var COL1_W = CONTENT_W - COL0_W; // photo column
 
     var FONT = "標楷體";
     function run(text, extra) {
@@ -33855,7 +33861,8 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 
       var imgChildren = [];
       if (photo) {
-        var maxWpt = 300, maxHpt = 220;
+        // leave a little padding inside the cell so the image doesn't touch the borders
+        var maxWpt = (COL1_W / 20) - 16, maxHpt = 220;
         var scale = Math.min(maxWpt / photo.width, maxHpt / photo.height, 1);
         var wPx = Math.round(photo.width * scale * 96 / 72);
         var hPx = Math.round(photo.height * scale * 96 / 72);
@@ -33866,11 +33873,11 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
         height: { value: 4680, rule: HeightRule.ATLEAST },
         children: [
           new TableCell({
-            width: { size: 32, type: WidthType.PERCENTAGE },
+            width: { size: COL0_W, type: WidthType.DXA },
             children: cellParas,
           }),
           new TableCell({
-            width: { size: 68, type: WidthType.PERCENTAGE },
+            width: { size: COL1_W, type: WidthType.DXA },
             verticalAlign: VerticalAlignTable.CENTER,
             children: [new Paragraph({ alignment: AlignmentType.CENTER, children: imgChildren })],
           }),
@@ -33880,7 +33887,9 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
 
     var border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
     var table = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: CONTENT_W, type: WidthType.DXA },
+      columnWidths: [COL0_W, COL1_W],
+      layout: TableLayoutType.FIXED,
       borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border },
       rows: rows,
     });
@@ -33889,8 +33898,8 @@ while (n === a[++i] && n === a[++i] && n === a[++i] && n === a[++i] && n === a[+
       sections: [{
         properties: {
           page: {
-            size: { width: 11906, height: 16838 },
-            margin: { top: 340, right: 1134, bottom: 663, left: 1134 },
+            size: { width: PAGE_W, height: 16838 },
+            margin: { top: 340, right: MARGIN_R, bottom: 663, left: MARGIN_L },
           },
         },
         children: headerChildren.concat([table]),
